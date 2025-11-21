@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"name": "cloud_scheduler_project",
+			"path": ".."
+		},
+		{
+			"name": "python_demo",
+			"path": "../../../Desktop/python_demo"
+		},
+		{
+			"name": "backend_multi_container",
+			"path": "../../backend_multi_container"
+		}
+	],
+	"settings": {
+		"python-envs.defaultEnvManager": "ms-python.python:system"
+	}
+}
