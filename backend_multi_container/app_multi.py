@@ -1,10 +1,10 @@
-import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from scheduler import fcfs, sjf, srtf, rr, priority
+import os
 
 app = Flask(__name__)
-CORS(app)  # 允许所有跨域请求
+CORS(app)
 
 ALGORITHMS = {
     "fcfs": fcfs,
@@ -13,6 +13,10 @@ ALGORITHMS = {
     "rr": rr,
     "priority": priority
 }
+
+@app.route("/", methods=["GET"])
+def home():
+    return "Cloud Scheduler backend is running!"
 
 @app.route("/simulate", methods=["POST"])
 def simulate():
@@ -26,11 +30,7 @@ def simulate():
             return jsonify({"error": "Invalid algorithm"}), 400
 
         algo_func = ALGORITHMS[algo_name]
-        if algo_name == "rr":
-            result = algo_func(tasks, quantum)
-        else:
-            result = algo_func(tasks)
-
+        result = algo_func(tasks, quantum) if algo_name == "rr" else algo_func(tasks)
         return jsonify(result)
 
     except Exception as e:
@@ -38,5 +38,5 @@ def simulate():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # 使用 Render 提供的端口
-    app.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)

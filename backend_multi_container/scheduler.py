@@ -1,18 +1,10 @@
-# scheduler.py
-
 from collections import deque
 
-# -------------------------------
-# function to calculate metrics like TAT, WT, CPU utilization
 def calculate_metrics(tasks):
-    """
-    input: tasks list, each task has start and finish
-    output: tasks with CT, TAT, WT, CPU utilization
-    """
     for task in tasks:
-        task['ct'] = task['finish']  # Completion time
-        task['tat'] = task['ct'] - task['arrival']  # Turnaround Time
-        task['wt'] = task['tat'] - task['burst']    # Waiting Time
+        task['ct'] = task['finish']
+        task['tat'] = task['ct'] - task['arrival']
+        task['wt'] = task['tat'] - task['burst']
 
     total_burst = sum([task['burst'] for task in tasks])
     last_finish = max([task['finish'] for task in tasks])
@@ -21,30 +13,27 @@ def calculate_metrics(tasks):
     return tasks, cpu_util
 
 # -------------------------------
-# FCFS - First Come First Serve
+# FCFS
 def fcfs(tasks):
     tasks = sorted(tasks, key=lambda x: x['arrival'])
     current_time = 0
     timeline = []
-
     for task in tasks:
         task['start'] = max(current_time, task['arrival'])
         task['finish'] = task['start'] + task['burst']
         current_time = task['finish']
         timeline.append({'id': task['id'], 'start': task['start'], 'finish': task['finish'], 'burst': task['burst']})
-
     tasks, cpu_util = calculate_metrics(tasks)
     return {'tasks': tasks, 'cpu_utilization': cpu_util, 'timeline': timeline}
 
 # -------------------------------
-# SJF - Shortest Job First (non-preemptive)
+# SJF
 def sjf(tasks):
     tasks = sorted(tasks, key=lambda x: (x['arrival'], x['burst']))
     n = len(tasks)
     completed = [False]*n
     current_time = 0
     timeline = []
-
     for _ in range(n):
         available = [i for i in range(n) if tasks[i]['arrival'] <= current_time and not completed[i]]
         if not available:
@@ -57,12 +46,11 @@ def sjf(tasks):
         current_time = task['finish']
         completed[idx] = True
         timeline.append({'id': task['id'], 'start': task['start'], 'finish': task['finish'], 'burst': task['burst']})
-
     tasks, cpu_util = calculate_metrics(tasks)
     return {'tasks': tasks, 'cpu_utilization': cpu_util, 'timeline': timeline}
 
 # -------------------------------
-# SRTF - Shortest Remaining Time First (preemptive)
+# SRTF
 def srtf(tasks):
     n = len(tasks)
     remaining = [task['burst'] for task in tasks]
@@ -71,9 +59,7 @@ def srtf(tasks):
     current_time = 0
     timeline = []
     completed = 0
-
     while completed < n:
-        # find all available tasks
         available = [i for i in range(n) if tasks[i]['arrival'] <= current_time and remaining[i] > 0]
         if not available:
             current_time += 1
@@ -87,16 +73,14 @@ def srtf(tasks):
             finish_times[idx] = current_time
             completed += 1
             timeline.append({'id': tasks[idx]['id'], 'start': start_times[idx], 'finish': finish_times[idx], 'burst': tasks[idx]['burst']})
-
     for i in range(n):
         tasks[i]['start'] = start_times[i]
         tasks[i]['finish'] = finish_times[i]
-
     tasks, cpu_util = calculate_metrics(tasks)
     return {'tasks': tasks, 'cpu_utilization': cpu_util, 'timeline': timeline}
 
 # -------------------------------
-# RR - Round Robin
+# RR
 def rr(tasks, quantum=1):
     n = len(tasks)
     remaining = [task['burst'] for task in tasks]
@@ -106,9 +90,7 @@ def rr(tasks, quantum=1):
     timeline = []
     queue = deque()
     arrived = [False]*n
-
     while sum(remaining) > 0:
-        # add newly arrived tasks
         for i in range(n):
             if tasks[i]['arrival'] <= current_time and not arrived[i] and remaining[i] > 0:
                 queue.append(i)
@@ -126,29 +108,25 @@ def rr(tasks, quantum=1):
             finish_times[idx] = current_time
             timeline.append({'id': tasks[idx]['id'], 'start': start_times[idx], 'finish': finish_times[idx], 'burst': tasks[idx]['burst']})
         else:
-            # check for newly arrived tasks before re-queue
             for i in range(n):
                 if tasks[i]['arrival'] <= current_time and not arrived[i] and remaining[i] > 0:
                     queue.append(i)
                     arrived[i] = True
             queue.append(idx)
-
     for i in range(n):
         tasks[i]['start'] = start_times[i]
         tasks[i]['finish'] = finish_times[i]
-
     tasks, cpu_util = calculate_metrics(tasks)
     return {'tasks': tasks, 'cpu_utilization': cpu_util, 'timeline': timeline}
 
 # -------------------------------
-# Priority - non-preemptive
+# Priority
 def priority(tasks):
     n = len(tasks)
     tasks = sorted(tasks, key=lambda x: x['arrival'])
     completed = [False]*n
     current_time = 0
     timeline = []
-
     for _ in range(n):
         available = [i for i in range(n) if tasks[i]['arrival'] <= current_time and not completed[i]]
         if not available:
@@ -161,6 +139,5 @@ def priority(tasks):
         current_time = task['finish']
         completed[idx] = True
         timeline.append({'id': task['id'], 'start': task['start'], 'finish': task['finish'], 'burst': task['burst'], 'priority': task['priority']})
-
     tasks, cpu_util = calculate_metrics(tasks)
     return {'tasks': tasks, 'cpu_utilization': cpu_util, 'timeline': timeline}
