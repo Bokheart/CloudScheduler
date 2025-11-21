@@ -1,15 +1,10 @@
-# app_multi.py
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from scheduler import fcfs, sjf, srtf, rr, priority
 
 app = Flask(__name__)
-
-# 允许来自 React 前端的跨域请求
-from flask_cors import CORS
-
 CORS(app)  # 允许所有跨域请求
-
 
 ALGORITHMS = {
     "fcfs": fcfs,
@@ -43,5 +38,5 @@ def simulate():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    # 强制绑定 0.0.0.0 便于浏览器访问
-   app.run(host="0.0.0.0", port=5001, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # 使用 Render 提供的端口
+    app.run(host="0.0.0.0", port=port)
