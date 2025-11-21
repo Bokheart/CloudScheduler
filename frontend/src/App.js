@@ -23,15 +23,15 @@ export default function SchedulerForm() {
 
   const runSimulation = async () => {
     try {
-     const formattedTasks = tasks.map((t, index) => ({
-  id: index + 1,
-  arrival: parseInt(t.at) || 0,
-  burst: parseInt(t.bt) || 0,
-  priority: parseInt(t.priority) || 0
-}));
+      const formattedTasks = tasks.map((t, index) => ({
+        id: index + 1,
+        arrival: parseInt(t.at) || 0,
+        burst: parseInt(t.bt) || 0,
+        priority: parseInt(t.priority) || 0
+      }));
 
-
-      const response = await axios.post("http://localhost:5001/simulate", {
+      // ✅ 修改这里为 Render 后端 URL
+      const response = await axios.post("/simulate", {
         algorithm: algorithm.toLowerCase(),
         tasks: formattedTasks,
         quantum: parseInt(quantum)
@@ -40,7 +40,7 @@ export default function SchedulerForm() {
       setResult(response.data);
     } catch (error) {
       console.error(error);
-      alert("请求后端失败，请确认 Flask 已启动并且端口正确");
+      alert("请求后端失败，请确认 Render 后端已部署并且 URL 正确");
     }
   };
 
@@ -218,4 +218,3 @@ export default function SchedulerForm() {
     </div>
   );
 }
-
