@@ -14,7 +14,7 @@ from scheduler import fcfs, sjf, srtf, rr, priority
 # ---------------------- Initialize Flask ----------------------
 # static_folder points to React build
 app = Flask(__name__, static_folder="build", static_url_path="/")
-CORS(app)
+CORS(app)  # allow cross-origin requests
 
 # ---------------------- Algorithms ----------------------
 ALGORITHMS = {
@@ -48,10 +48,10 @@ def init_db():
 # ---------------------- Serve React Frontend ----------------------
 @app.route('/')
 def serve_frontend():
-    """Serve the React build index.html page"""
+    """Serve React index.html"""
     return send_from_directory(app.static_folder, 'index.html')
 
-# ---------------------- Serve Experiment Records (optional) ----------------------
+# ---------------------- Show Experiment Records ----------------------
 @app.route("/records")
 def records():
     """Show experiment records in HTML"""
@@ -191,11 +191,33 @@ def generate_next():
         "message": f"Successfully generated 50 experiment records for algorithm {algo_name}"
     })
 
-# ---------------------- Start Flask Server ----------------------
+# ---------------------- Simulate Custom Task API ----------------------
+@app.route("/simulate", methods=["POST"])
+def simulate():
+    """Simulate tasks from frontend and return result"""
+    data = request.get_json()
+    algo_name = data.get("algorithm")
+    tasks = data.get("tasks", [])
+    quantum = data.get("quantum", 2)
+
+    if algo_name not in ALGORITHMS:
+        return jsonify({"error": "Algorithm not supported"}), 400
+
+    algo_func = ALGORITHMS[algo_name]
+
+    try:
+        if algo_name == "rr":
+            result = algo_func(tasks, quantum)
+        else:
+            result = algo_func(tasks)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ---------------------- Start Flask Server ----------------------
 import os
 
 if __name__ == "__main__":
     init_db()  
-    port = int(os.environ.get("PORT", 5000))  # Render
+    port = int(os.environ.get("PORT", 5000))  # use PORT if provided, else 5000
     app.run(host="0.0.0.0", port=port)
