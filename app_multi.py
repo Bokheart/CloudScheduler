@@ -192,7 +192,11 @@ def generate_next():
     })
 
 # ---------------------- Start Flask Server ----------------------
+# ---------------------- Start Flask Server ----------------------
+import os
+
 if __name__ == "__main__":
-    init_db()  # Make sure DB exists
-    # Run on all network addresses, debug True for dev
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    init_db()
+    
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host="0.0.0.0", port=port)
