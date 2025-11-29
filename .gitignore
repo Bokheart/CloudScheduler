@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# React build 
+# build/
+
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# SQLite database
+results.db
+
+# IDE 文件
+.vscode/
+*.suo
+*.user
+*.swp
