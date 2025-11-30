@@ -159,6 +159,7 @@ def rr(tasks, quantum=1):
     timeline = []
 
     while sum(remaining) > 0:
+        # 检查新到达任务
         for i in range(n):
             if tasks[i]['arrival'] <= current_time and not arrived[i] and remaining[i] > 0:
                 queue.append(i)
@@ -174,23 +175,27 @@ def rr(tasks, quantum=1):
             start_times[idx] = current_time
 
         run_time = min(quantum, remaining[idx])
+        # 在 timeline 中记录每个切片
+        timeline.append({
+            'id': tasks[idx]['id'],
+            'start': current_time,
+            'finish': current_time + run_time,
+            'burst': run_time
+        })
+
         remaining[idx] -= run_time
         current_time += run_time
 
-        if remaining[idx] == 0:
-            finish_times[idx] = current_time
-            timeline.append({
-                'id': tasks[idx]['id'],
-                'start': start_times[idx],
-                'finish': finish_times[idx],
-                'burst': tasks[idx]['burst']
-            })
-        else:
-            for i in range(n):
-                if tasks[i]['arrival'] <= current_time and not arrived[i] and remaining[i] > 0:
-                    queue.append(i)
-                    arrived[i] = True
+        # 检查新到达任务
+        for i in range(n):
+            if tasks[i]['arrival'] <= current_time and not arrived[i] and remaining[i] > 0:
+                queue.append(i)
+                arrived[i] = True
+
+        if remaining[idx] > 0:
             queue.append(idx)
+        else:
+            finish_times[idx] = current_time
 
     for i in range(n):
         tasks[i]['start'] = start_times[i]
